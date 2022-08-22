@@ -1,6 +1,10 @@
 {
     "name": "react-admin-dashboard",
     "version": "0.1.0",
+    "engines": {
+        "node": "16.16.0",
+        "npm": "8.13.1"
+    },
     "dependencies": {
         "@fortawesome/react-fontawesome": "^0.1.18",
         "axios": "^0.27.2",
