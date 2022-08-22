@@ -10,6 +10,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ChapterLoading from 'components/loading/ChapterLoading';
+import constants from '../../constants';
 
 const useStyles = createUseStyles({
     cardsContainer: {
@@ -29,20 +30,12 @@ const useStyles = createUseStyles({
 });
 
 const Chapters = () => {
+    const classes = useStyles();
     const [chapters, setChapters] = useState([]);
     const [subjects, setSubjects] = useState([]);
-
     const [isLoading, setIsLoading] = useState(true);
-
-    const [update, setUpdate] = useState(true);
-
-    const classes = useStyles();
+    const [update, setUpdate] = useState(false);
     const [showAdd, setShowAdd] = useState(false);
-    const handleAddClose = () => setShowAdd(false);
-    const handleAddShow = () => setShowAdd(true);
-
-    const [showAlert, setShowAlert] = useState(false);
-    const handleShowAlert = () => setShowAlert(!showAlert);
 
     const [enteredName, setEnteredName] = useState('');
     const [selectSubject, setSelectSubject] = useState();
@@ -56,41 +49,44 @@ const Chapters = () => {
         setSelectSubject(event.target.value);
     };
 
-    const updateHandler = () => {
-        setUpdate(!update);
-    };
-
     const updateNotify = () => toast('Chapter is updated');
 
     const deleteNotify = () => toast('Chapter is deleted');
 
-    const submitHandler = (event) => {
-        event.preventDefault();
-
-        console.log(selectSubject);
-
-        axios.post(`http://localhost:8080/chapter?subject_id=${selectSubject}`, {
-            chapterName: enteredName
-        });
-
-        updateHandler();
-
-        setEnteredName('');
-
-        handleAddClose();
+    const postData = async () => {
+        try {
+            await axios.post(`${constants.url}chapter?subject_id=${selectSubject}`, {
+                chapterName: enteredName
+            });
+            setUpdate(!update);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
-    useEffect(() => {
-        const getChapters = async () => {
-            const response = await axios.get('http://localhost:8080/chapters');
+    const submitHandler = (event) => {
+        event.preventDefault();
+        postData();
+        setEnteredName('');
+        setShowAdd(false);
+    };
+
+    const getChapters = async () => {
+        try {
+            const response = await axios.get(`${constants.url}chapters`);
 
             setChapters(response.data);
             setIsLoading(false);
-        };
-        axios.get('http://localhost:8080/subject').then((response) => {
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        getChapters();
+        axios.get(`${constants.url}subject`).then((response) => {
             setSubjects(response.data);
         });
-        getChapters();
     }, [update]);
 
     const RenderChapters = ({ chapters, isLoading }) => {
@@ -117,22 +113,25 @@ const Chapters = () => {
                 horizontal='space-evenly'
                 breakpoints={{ 768: 'column' }}
             >
-                {chapters.map((data) => {
-                    return (
-                        <ChapterCard
-                            key={data.cId}
-                            cId={data.cId}
-                            chapterName={data.chapterName}
-                            subjectName={data.subjectName}
-                            topicData={data.topics}
-                            handleShowAlert={handleShowAlert}
-                            update={update}
-                            updateHandler={updateHandler}
-                            updateTostify={updateNotify}
-                            deleteTostify={deleteNotify}
-                        />
-                    );
-                })}
+                {chapters.length === 0 ? (
+                    <>No chapters are added...</>
+                ) : (
+                    chapters.map((data) => {
+                        return (
+                            <ChapterCard
+                                key={data.cId}
+                                cId={data.cId}
+                                chapterName={data.chapterName}
+                                subjectName={data.subjectName}
+                                topicData={data.topics}
+                                update={update}
+                                setUpdate={setUpdate}
+                                updateTostify={updateNotify}
+                                deleteTostify={deleteNotify}
+                            />
+                        );
+                    })
+                )}
             </Row>
         );
     };
@@ -158,11 +157,11 @@ const Chapters = () => {
                     draggable
                     pauseOnHover
                 />
-                <Button className='mb-md-3' variant='primary' onClick={handleAddShow}>
+                <Button className='mb-md-3' variant='primary' onClick={() => setShowAdd(true)}>
                     Add New Chapter
                 </Button>
 
-                <Modal show={showAdd} onHide={handleAddClose}>
+                <Modal show={showAdd} onHide={() => setShowAdd(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add Chapter</Modal.Title>
                     </Modal.Header>

@@ -10,6 +10,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ChapterLoading from 'components/loading/ChapterLoading';
+import constants from '../../constants';
 
 const useStyles = createUseStyles({
     cardsContainer: {
@@ -59,7 +60,7 @@ const IndividualChapterComponent = (props) => {
     const submitHandler = (event) => {
         event.preventDefault();
 
-        axios.post(`http://localhost:8080/chapter?subject_id=${props.match.params.id}`, {
+        axios.post(`${constants.url}chapter?subject_id=${props.match.params.id}`, {
             chapterName: enteredName
         });
 
@@ -73,7 +74,7 @@ const IndividualChapterComponent = (props) => {
     useEffect(() => {
         const getChapters = async () => {
             const response = await axios.get(
-                `http://localhost:8080/chapter?subject_id=${props.match.params.id}`
+                `${constants.url}chapter?subject_id=${props.match.params.id}`
             );
             setChapters(response.data);
             setIsLoading(false);

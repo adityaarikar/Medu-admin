@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import SLUGS from 'resources/slugs';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import constants from '../../constants';
 
 const useStyles = createUseStyles({
     cardsContainer: {
@@ -29,17 +30,16 @@ function DashboardComponent() {
     const [topics, setTopics] = useState();
 
     useEffect(() => {
-        axios.get('http://localhost:8080/subject').then((response) => {
+        axios.get(`${constants.url}subject`).then((response) => {
             setSubjects(response.data);
         });
-        axios.get('http://localhost:8080/chapters').then((response) => {
+        axios.get(`${constants.url}chapters`).then((response) => {
             setChapters(response.data);
         });
-        axios.get('http://localhost:8080/topics').then((response) => {
+        axios.get(`${constants.url}topics`).then((response) => {
             setTopics(response.data);
         });
     }, []);
-
     return (
         <Column>
             <h1>Home</h1>

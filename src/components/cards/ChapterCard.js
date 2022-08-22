@@ -8,13 +8,11 @@ import { FaPen } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import constants from '../../constants';
 
 const ChapterCard = (props) => {
     const [name, setName] = useState(props.chapterName);
-
     const [showChapter, setShowChapter] = useState(false);
-    const handleChapterClose = () => setShowChapter(false);
-    const handleChapterShow = () => setShowChapter(true);
 
     const changeNameHandler = (event) => {
         setName(event.target.value);
@@ -23,20 +21,26 @@ const ChapterCard = (props) => {
     const submitHandler = (event) => {
         event.preventDefault();
 
-        axios.put(`http://localhost:8080/chapter?chapter_id=${props.cId}`, {
-            chapterName: name
-        });
+        try {
+            axios.put(`${constants.url}chapter?chapter_id=${props.cId}`, {
+                chapterName: name
+            });
 
-        props.updateHandler();
-        props.updateTostify();
+            props.setUpdate(!props.update);
+            props.updateTostify();
+        } catch (error) {
+            if (error.responce.status === 404) {
+                console.log('Something went wrong...!');
+            }
+        }
 
         setName('');
-        handleChapterClose();
+        setShowChapter(false);
     };
 
     const onDeleteChapter = () => {
-        axios.delete(`http://localhost:8080/chapter?chapter_id=${props.cId}`);
-        props.updateHandler(props.update);
+        axios.delete(`${constants.url}chapter?chapter_id=${props.cId}`);
+        props.setUpdate(!props.update);
         props.deleteTostify();
     };
 
@@ -59,10 +63,10 @@ const ChapterCard = (props) => {
                         alignItems: 'center'
                     }}
                 >
-                    <FaPen color='orange' onClick={handleChapterShow} cursor='pointer' />
+                    <FaPen color='orange' onClick={() => setShowChapter(true)} cursor='pointer' />
                     <MdDelete color='red' cursor='pointer' onClick={onDeleteChapter} />
                 </div>
-                <Modal show={showChapter} onHide={handleChapterClose}>
+                <Modal show={showChapter} onHide={() => setShowChapter(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Chapter</Modal.Title>
                     </Modal.Header>

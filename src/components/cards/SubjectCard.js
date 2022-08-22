@@ -8,13 +8,11 @@ import { FaPen } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import constants from '../../constants';
 
 const SubjectCard = (props) => {
     const [name, setName] = useState(props.subjectName);
-
     const [showSubject, setShowSubject] = useState(false);
-    const handleSubjectClose = () => setShowSubject(false);
-    const handleSubjectShow = () => setShowSubject(true);
 
     const changeNameHandler = (event) => {
         setName(event.target.value);
@@ -23,19 +21,28 @@ const SubjectCard = (props) => {
     const submitHandler = (event) => {
         event.preventDefault();
 
-        axios.put(`http://localhost:8080/subject?subject_id=${props.sId}`, {
-            name: name
-        });
+        console.log('Before update', props.update);
 
-        props.updateHandler(!props.update);
-        props.updateTostify();
+        try {
+            const res = axios.put(`${constants.url}subject?subject_id=${props.sId}`, {
+                name: name
+            });
+            props.setUpdate(!props.update);
+            props.updateTostify();
+        } catch (error) {
+            if (error.responce.status === 404) {
+                console.log('Something went wrong...!');
+            }
+        }
 
+        setShowSubject(false);
         setName('');
     };
 
     const handleDeleteSubject = () => {
-        axios.delete(`http://localhost:8080/subject?subject_id=${props.sId}`);
-        props.updateHandler();
+        axios.delete(`${constants.url}subject?subject_id=${props.sId}`);
+        console.log(props.update);
+        props.setUpdate(!props.update);
         props.deleteTostify();
     };
 
@@ -45,7 +52,9 @@ const SubjectCard = (props) => {
         <Card style={{ width: '20rem', marginBottom: '30px ', textAlign: 'center' }}>
             <Card.Header>{props.subjectName}</Card.Header>
             <Card.Body>
-                <Card.Subtitle className='mb-2 text-muted'>{chapterLength} Topics</Card.Subtitle>
+                <Card.Subtitle className='mb-2 text-muted'>
+                    {props.chaptersData.length == null ? 0 : props.chaptersData.length} Chapters
+                </Card.Subtitle>
                 <Link to={`/subject/chapters/${props.sId}`}>
                     <Button variant='primary'>Go To Chapters</Button>
                 </Link>
@@ -57,10 +66,10 @@ const SubjectCard = (props) => {
                         alignItems: 'center'
                     }}
                 >
-                    <FaPen color='orange' onClick={handleSubjectShow} cursor='pointer' />
+                    <FaPen color='orange' onClick={() => setShowSubject(true)} cursor='pointer' />
                     <MdDelete color='red' cursor='pointer' onClick={handleDeleteSubject} />
                 </div>
-                <Modal show={showSubject} onHide={handleSubjectClose}>
+                <Modal show={showSubject} onHide={() => setShowSubject(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add Subject</Modal.Title>
                     </Modal.Header>

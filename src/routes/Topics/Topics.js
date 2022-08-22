@@ -13,6 +13,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import TopicLoading from 'components/loading/TopicLoading';
+import constants from '../../constants';
 
 const useStyles = createUseStyles({
     cardsContainer: {
@@ -26,28 +27,23 @@ const useStyles = createUseStyles({
 });
 
 const Topics = () => {
+    const classes = useStyles();
     const [topics, setTopics] = useState([]);
     const [chapters, setChapters] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const classes = useStyles();
     const [showAdd, setShowAdd] = useState(false);
-    const handleAddClose = () => setShowAdd(false);
-    const handleAddShow = () => setShowAdd(true);
 
     const [enteredName, setName] = useState('');
     const [videoLink, setVideoLink] = useState('');
     const [pdfLink, setPdfLink] = useState('');
+    const [hindiVideoLink, setHindiVideoLink] = useState('');
     const [selectSubject, setSelectSubject] = useState('');
 
     const [file, setFile] = useState(null);
     const [progress, setProgress] = useState(0);
 
-    const [update, setUpdate] = useState(true);
-
-    const updateHandler = () => {
-        setUpdate(!update);
-    };
+    const [update, setUpdate] = useState(false);
 
     const topicNameChangeHandler = (event) => {
         setName(event.target.value);
@@ -55,6 +51,10 @@ const Topics = () => {
 
     const linkChangeHandler = (event) => {
         setVideoLink(event.target.value);
+    };
+
+    const hindiLinkChangeHandler = (event) => {
+        setHindiVideoLink(event.target.value);
     };
 
     const subjectChangeHandler = (event) => {
@@ -97,34 +97,40 @@ const Topics = () => {
         );
     };
 
+    const postData = async () => {
+        try {
+            await axios.post(`${constants.url}topic?chapter_id=${selectSubject}`, {
+                name: enteredName,
+                pdfLink: pdfLink,
+                videoLink: videoLink,
+                hindiVideoLink: hindiVideoLink
+            });
+            setUpdate(!update);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const submitHandler = (event) => {
         event.preventDefault();
-
-        axios.post(`http://localhost:8080/topic?chapter_id=${selectSubject}`, {
-            name: enteredName,
-            pdfLink: pdfLink,
-            videoLink: videoLink
-        });
-
-        updateHandler();
-
+        postData();
         setName('');
         setVideoLink('');
         setSelectSubject('');
+        setHindiVideoLink('');
         setFile('');
         setProgress(0);
-
-        handleAddClose();
+        setShowAdd(false);
     };
 
     useEffect(() => {
         const getTopics = async () => {
-            const response = await axios.get('http://localhost:8080/topics');
+            const response = await axios.get(`${constants.url}topics`);
 
             setTopics(response.data);
             setIsLoading(false);
         };
-        axios.get('http://localhost:8080/chapters').then((response) => {
+        axios.get(`${constants.url}chapters`).then((response) => {
             setChapters(response.data);
         });
 
@@ -155,22 +161,27 @@ const Topics = () => {
                 horizontal='space-evenly'
                 breakpoints={{ 768: 'column' }}
             >
-                {topics.map((data) => {
-                    return (
-                        <TopicCard
-                            tId={data.tId}
-                            title={data.name}
-                            subjectName={data.subjectName}
-                            chapterName={data.chapterName}
-                            videoLink={data.videoLink}
-                            pdfLink={data.pdfLink}
-                            update={update}
-                            updateHandler={updateHandler}
-                            updateTostify={updateNotify}
-                            deleteTostify={deleteNotify}
-                        />
-                    );
-                })}
+                {topics.length === 0 ? (
+                    <>No topics are added...</>
+                ) : (
+                    topics.map((data) => {
+                        return (
+                            <TopicCard
+                                tId={data.tId}
+                                title={data.name}
+                                subjectName={data.subjectName}
+                                chapterName={data.chapterName}
+                                videoLink={data.videoLink}
+                                hindiVideoLink={data.hindiVideoLink}
+                                pdfLink={data.pdfLink}
+                                update={update}
+                                setUpdate={setUpdate}
+                                updateTostify={updateNotify}
+                                deleteTostify={deleteNotify}
+                            />
+                        );
+                    })
+                )}
             </Row>
         );
     };
@@ -198,11 +209,11 @@ const Topics = () => {
                     pauseOnHover
                 />
 
-                <Button variant='primary' onClick={handleAddShow}>
+                <Button variant='primary' onClick={() => setShowAdd(true)}>
                     Add New Topic
                 </Button>
 
-                <Modal show={showAdd} onHide={handleAddClose}>
+                <Modal show={showAdd} onHide={() => setShowAdd(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add Topic</Modal.Title>
                     </Modal.Header>
@@ -234,6 +245,16 @@ const Topics = () => {
                                         );
                                     })}
                                 </Form.Select>
+                            </Form.Group>
+                            <Form.Group controlId='form.hindiLink' className='mb-3'>
+                                <Form.Label>Hindi Video Link</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    value={hindiVideoLink}
+                                    onChange={hindiLinkChangeHandler}
+                                    placeholder='Enter hindi video link'
+                                    required
+                                />
                             </Form.Group>
                             <Form.Group controlId='form.link' className='mb-3'>
                                 <Form.Label>Video Link</Form.Label>

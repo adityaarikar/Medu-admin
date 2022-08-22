@@ -12,8 +12,8 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProgressBar from 'react-bootstrap/ProgressBar';
-import { async } from '@firebase/util';
 import TopicLoading from 'components/loading/TopicLoading';
+import constants from '../../constants';
 
 const useStyles = createUseStyles({
     cardsContainer: {
@@ -92,17 +92,22 @@ const IndividualTopicComponent = (props) => {
         );
     };
 
+    const postData = async () => {
+        try {
+            await axios.post(`${constants.url}topic?chapter_id=${props.match.params.id}`, {
+                name: enteredName,
+                pdfLink: pdfLink,
+                videoLink: videoLink
+            });
+            updateHandler();
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const submitHandler = (event) => {
         event.preventDefault();
-
-        axios.post(`http://localhost:8080/topic?chapter_id=${props.match.params.id}`, {
-            name: enteredName,
-            pdfLink: pdfLink,
-            videoLink: videoLink
-        });
-
-        updateHandler();
-
+        postData();
         setName('');
         setVideoLink('');
         setFile('');
@@ -114,7 +119,7 @@ const IndividualTopicComponent = (props) => {
     useEffect(() => {
         const getTopicData = async () => {
             const responce = await axios.get(
-                `http://localhost:8080/topic?chapter_id=${props.match.params.id}`
+                `${constants.url}topic?chapter_id=${props.match.params.id}`
             );
 
             setTopics(responce.data);

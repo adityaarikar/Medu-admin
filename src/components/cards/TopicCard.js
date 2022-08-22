@@ -7,12 +7,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaPen } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import axios from 'axios';
+import constants from '../../constants';
 
 const TopicCard = (props) => {
     const [name, setName] = useState(props.title);
     const [pdfLink, setPdfLink] = useState(props.pdfLink);
     const [videoLink, setVideoLink] = useState(props.videoLink);
-    // const []
+    const [hindiVideoLink, setHindiVideoLink] = useState(props.hindiVideoLink);
+    const [showtopic, setShowTopic] = useState(false);
 
     const changeNameHandler = (event) => {
         setName(event.target.value);
@@ -26,13 +28,13 @@ const TopicCard = (props) => {
         setVideoLink(event.target.value);
     };
 
-    const [showtopic, setShowTopic] = useState(false);
-    const handleTopicClose = () => setShowTopic(false);
-    const handleTopicShow = () => setShowTopic(true);
+    const changeHindiVideoHandler = (event) => {
+        setHindiVideoLink(event.target.value);
+    };
 
     const onDeleteTopic = () => {
-        axios.delete(`http://localhost:8080/topic?topic_id=${props.tId}`);
-        props.updateHandler(props.update);
+        axios.delete(`${constants.url}topic?topic_id=${props.tId}`);
+        props.setUpdate(!props.update);
         props.deleteTostify();
     };
 
@@ -51,13 +53,20 @@ const TopicCard = (props) => {
                         marginTop: '15px',
                         display: 'flex',
                         justifyContent: 'space-evenly',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap'
                     }}
                 >
-                    <Button className='mr-3' variant='primary'>
+                    <Button style={{ margin: '5px' }} className='mr-3' variant='primary'>
                         Pdf Link
                     </Button>
-                    <Button variant='primary'>Video Link</Button>
+                    <Button style={{ margin: '5px' }} className='mr-3' variant='primary'>
+                        Hindi Video Link
+                    </Button>
+                    <Button style={{ margin: '5px' }} variant='primary'>
+                        Video Link
+                    </Button>
                 </div>
                 <div
                     style={{
@@ -67,10 +76,10 @@ const TopicCard = (props) => {
                         alignItems: 'center'
                     }}
                 >
-                    <FaPen color='orange' onClick={handleTopicShow} cursor='pointer' />
+                    <FaPen color='orange' onClick={() => setShowTopic(true)} cursor='pointer' />
                     <MdDelete color='red' cursor='pointer' onClick={onDeleteTopic} />
                 </div>
-                <Modal show={showtopic} onHide={handleTopicClose}>
+                <Modal show={showtopic} onHide={() => setShowTopic(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Topic</Modal.Title>
                     </Modal.Header>
@@ -91,6 +100,15 @@ const TopicCard = (props) => {
                                     type='text'
                                     value={videoLink}
                                     onChange={changeVideoHandler}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group controlId='form.name' className='mb-3'>
+                                <Form.Label>Hindi Video Link</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    value={hindiVideoLink}
+                                    onChange={changeHindiVideoHandler}
                                     required
                                 />
                             </Form.Group>

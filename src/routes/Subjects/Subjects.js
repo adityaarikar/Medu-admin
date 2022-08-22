@@ -11,6 +11,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SubjectLoading from 'components/loading/SubjectLoading';
+import constants from '../../constants';
 
 const useStyles = createUseStyles({
     cardsContainer: {
@@ -30,28 +31,16 @@ const useStyles = createUseStyles({
 });
 
 const Subjects = () => {
-    const [subjects, setSubjects] = useState([]);
-
-    const [update, setUpdate] = useState(true);
-
-    const [isLoading, setIsLoading] = useState(true);
-
     const classes = useStyles();
+    const [subjects, setSubjects] = useState([]);
+    const [update, setUpdate] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [showAdd, setShowAdd] = useState(false);
-    const handleAddClose = () => setShowAdd(false);
-    const handleAddShow = () => setShowAdd(true);
-
     const [showAlert, setShowAlert] = useState(false);
-    const handleShowAlert = () => setShowAlert(!showAlert);
-
     const [enteredName, setEnteredName] = useState('');
 
     const changeNameHandler = (event) => {
         setEnteredName(event.target.value);
-    };
-
-    const updateHandler = () => {
-        setUpdate(!update);
     };
 
     const updateNotify = () => toast('Subject is updated');
@@ -60,10 +49,10 @@ const Subjects = () => {
 
     const postData = async () => {
         try {
-            await axios.post('http://localhost:8080/subject', {
+            await axios.post(`${constants.url}subject`, {
                 name: enteredName
             });
-            setUpdate();
+            setUpdate(!update);
         } catch (error) {
             console.error(error);
         }
@@ -71,17 +60,14 @@ const Subjects = () => {
 
     const submitHandler = (event) => {
         event.preventDefault();
-
         postData();
-
         setEnteredName('');
-
-        handleAddClose();
+        setShowAdd(false);
     };
 
     const getSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/subject');
+            const response = await axios.get(`${constants.url}subject`);
 
             setSubjects(response.data);
             setIsLoading(false);
@@ -92,6 +78,7 @@ const Subjects = () => {
 
     useEffect(() => {
         getSubjects();
+        console.log('executed');
     }, [update]);
 
     const RenderSubjects = ({ subjects, isLoading }) => {
@@ -118,21 +105,25 @@ const Subjects = () => {
                 horizontal='space-evenly'
                 breakpoints={{ 768: 'column' }}
             >
-                {subjects.map((data) => {
-                    return (
-                        <SubjectCard
-                            key={data.sId}
-                            sId={data.sId}
-                            subjectName={data.name}
-                            chaptersData={data.chapters}
-                            handleShowAlert={handleShowAlert}
-                            update={update}
-                            updateHandler={updateHandler}
-                            updateTostify={updateNotify}
-                            deleteTostify={deleteNotify}
-                        />
-                    );
-                })}
+                {subjects.length === 0 ? (
+                    <>No subjects are added...</>
+                ) : (
+                    subjects.map((data) => {
+                        return (
+                            <SubjectCard
+                                key={data.sId}
+                                sId={data.sId}
+                                subjectName={data.name}
+                                chaptersData={data.chapters}
+                                setShowAlert={setShowAlert}
+                                update={update}
+                                setUpdate={setUpdate}
+                                updateTostify={updateNotify}
+                                deleteTostify={deleteNotify}
+                            />
+                        );
+                    })
+                )}
             </Row>
         );
     };
@@ -158,11 +149,11 @@ const Subjects = () => {
                     draggable
                     pauseOnHover
                 />
-                <Button className='mb-md-3' variant='primary' onClick={handleAddShow}>
+                <Button className='mb-md-3' variant='primary' onClick={() => setShowAdd(true)}>
                     Add New Subject
                 </Button>
 
-                <Modal show={showAdd} onHide={handleAddClose}>
+                <Modal show={showAdd} onHide={() => setShowAdd(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add Subject</Modal.Title>
                     </Modal.Header>
@@ -190,7 +181,7 @@ const Subjects = () => {
                     <Alert.Heading>Are you sure you want to delete it?</Alert.Heading>
                     <hr />
                     <div className='d-flex justify-content-end'>
-                        <Button onClick={handleShowAlert} variant='outline-success'>
+                        <Button onClick={() => setShowAlert(true)} variant='outline-success'>
                             Yes I'm Sure
                         </Button>
                     </div>
