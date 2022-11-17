@@ -35,8 +35,8 @@ const Topics = () => {
     const [showAdd, setShowAdd] = useState(false);
 
     const [enteredName, setName] = useState('');
-    const [videoLink, setVideoLink] = useState('');
     const [pdfLink, setPdfLink] = useState('');
+    const [englishVideoLink, setEnglishVideoLink] = useState('');
     const [hindiVideoLink, setHindiVideoLink] = useState('');
     const [selectSubject, setSelectSubject] = useState('');
 
@@ -50,7 +50,7 @@ const Topics = () => {
     };
 
     const linkChangeHandler = (event) => {
-        setVideoLink(event.target.value);
+        setEnglishVideoLink(event.target.value);
     };
 
     const hindiLinkChangeHandler = (event) => {
@@ -102,7 +102,7 @@ const Topics = () => {
             await axios.post(`${constants.url}topic?chapter_id=${selectSubject}`, {
                 name: enteredName,
                 pdfLink: pdfLink,
-                videoLink: videoLink,
+                englishVideoLink: englishVideoLink,
                 hindiVideoLink: hindiVideoLink
             });
             setUpdate(!update);
@@ -115,7 +115,7 @@ const Topics = () => {
         event.preventDefault();
         postData();
         setName('');
-        setVideoLink('');
+        setEnglishVideoLink('');
         setSelectSubject('');
         setHindiVideoLink('');
         setFile('');
@@ -171,7 +171,7 @@ const Topics = () => {
                                 title={data.name}
                                 subjectName={data.subjectName}
                                 chapterName={data.chapterName}
-                                videoLink={data.videoLink}
+                                videoLink={data.englishVideoLink}
                                 hindiVideoLink={data.hindiVideoLink}
                                 pdfLink={data.pdfLink}
                                 update={update}
@@ -256,11 +256,11 @@ const Topics = () => {
                                     required
                                 />
                             </Form.Group>
-                            <Form.Group controlId='form.link' className='mb-3'>
-                                <Form.Label>Video Link</Form.Label>
+                            <Form.Group controlId='form.englishLink' className='mb-3'>
+                                <Form.Label>English Video Link</Form.Label>
                                 <Form.Control
                                     type='text'
-                                    value={videoLink}
+                                    value={englishVideoLink}
                                     onChange={linkChangeHandler}
                                     placeholder='Enter video link'
                                     required

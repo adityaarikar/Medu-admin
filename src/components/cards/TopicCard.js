@@ -8,13 +8,16 @@ import { FaPen } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import axios from 'axios';
 import constants from '../../constants';
+import { getStorage, ref, deleteObject } from 'firebase/storage';
 
 const TopicCard = (props) => {
     const [name, setName] = useState(props.title);
     const [pdfLink, setPdfLink] = useState(props.pdfLink);
-    const [videoLink, setVideoLink] = useState(props.videoLink);
     const [hindiVideoLink, setHindiVideoLink] = useState(props.hindiVideoLink);
+    const [englishVideoLink, setEnglishVideoLink] = useState(props.englishVideoLink);
     const [showtopic, setShowTopic] = useState(false);
+
+    const storage = getStorage();
 
     const changeNameHandler = (event) => {
         setName(event.target.value);
@@ -25,17 +28,40 @@ const TopicCard = (props) => {
     };
 
     const changeVideoHandler = (event) => {
-        setVideoLink(event.target.value);
-    };
-
-    const changeHindiVideoHandler = (event) => {
         setHindiVideoLink(event.target.value);
     };
 
+    const changeHindiVideoHandler = (event) => {
+        setEnglishVideoLink(event.target.value);
+    };
+
     const onDeleteTopic = () => {
-        axios.delete(`${constants.url}topic?topic_id=${props.tId}`);
-        props.setUpdate(!props.update);
-        props.deleteTostify();
+        const desertRef = ref(storage, props.pdfLink);
+        console.log(props.pdfLink);
+
+        // Delete the file
+        deleteObject(desertRef)
+            .then(() => {
+                // File deleted successfully
+                axios.delete(`${constants.url}topic?topic_id=${props.tId}`);
+                props.setUpdate(!props.update);
+                props.deleteTostify();
+            })
+            .catch((error) => {
+                // Uh-oh, an error occurred!
+                console.log(error);
+            });
+        //2.
+        // pictureRef
+        //     .delete()
+        //     .then(() => {
+        //         axios.delete(`${constants.url}topic?topic_id=${props.tId}`);
+        //         props.setUpdate(!props.update);
+        //         props.deleteTostify();
+        //     })
+        //     .catch((err) => {
+        //         console.log(err);
+        //     });
     };
 
     const submitHandler = () => {
@@ -95,10 +121,10 @@ const TopicCard = (props) => {
                                 />
                             </Form.Group>
                             <Form.Group controlId='form.name' className='mb-3'>
-                                <Form.Label>Video Link</Form.Label>
+                                <Form.Label>English Video Link</Form.Label>
                                 <Form.Control
                                     type='text'
-                                    value={videoLink}
+                                    value={hindiVideoLink}
                                     onChange={changeVideoHandler}
                                     required
                                 />
@@ -107,7 +133,7 @@ const TopicCard = (props) => {
                                 <Form.Label>Hindi Video Link</Form.Label>
                                 <Form.Control
                                     type='text'
-                                    value={hindiVideoLink}
+                                    value={englishVideoLink}
                                     onChange={changeHindiVideoHandler}
                                     required
                                 />

@@ -36,7 +36,8 @@ const IndividualTopicComponent = (props) => {
     const handleAddShow = () => setShowAdd(true);
 
     const [enteredName, setName] = useState('');
-    const [videoLink, setVideoLink] = useState('');
+    const [englishVideoLink, setEnglishVideoLink] = useState('');
+    const [hindiVideoLink, setHindiVideoLink] = useState('');
     const [pdfLink, setPdfLink] = useState('');
 
     const [file, setFile] = useState(null);
@@ -53,7 +54,11 @@ const IndividualTopicComponent = (props) => {
     };
 
     const linkChangeHandler = (event) => {
-        setVideoLink(event.target.value);
+        setEnglishVideoLink(event.target.value);
+    };
+
+    const hindiLinkChangeHandler = (event) => {
+        setHindiVideoLink(event.target.value);
     };
 
     const fileChangeHandler = (event) => {
@@ -97,7 +102,8 @@ const IndividualTopicComponent = (props) => {
             await axios.post(`${constants.url}topic?chapter_id=${props.match.params.id}`, {
                 name: enteredName,
                 pdfLink: pdfLink,
-                videoLink: videoLink
+                englishVideoLink: englishVideoLink,
+                hindiVideoLink: hindiVideoLink
             });
             updateHandler();
         } catch (error) {
@@ -109,7 +115,8 @@ const IndividualTopicComponent = (props) => {
         event.preventDefault();
         postData();
         setName('');
-        setVideoLink('');
+        setEnglishVideoLink('');
+        setHindiVideoLink('');
         setFile('');
         setProgress(0);
 
@@ -216,12 +223,22 @@ const IndividualTopicComponent = (props) => {
                                     required
                                 />
                             </Form.Group>
-                            <Form.Group controlId='form.link' className='mb-3'>
-                                <Form.Label>Video Link</Form.Label>
+                            <Form.Group controlId='form.englishLink' className='mb-3'>
+                                <Form.Label>English Video Link</Form.Label>
                                 <Form.Control
                                     type='text'
-                                    value={videoLink}
+                                    value={englishVideoLink}
                                     onChange={linkChangeHandler}
+                                    placeholder='Enter video link'
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group controlId='form.hindiLink' className='mb-3'>
+                                <Form.Label>Hindi Video Link</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    value={hindiVideoLink}
+                                    onChange={hindiLinkChangeHandler}
                                     placeholder='Enter video link'
                                     required
                                 />
