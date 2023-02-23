@@ -1,7 +1,7 @@
 export default {
     // private
     dashboard: '/dashboard',
-    home: '/home',
+    home: '/',
     subjects: '/subjects',
     chapters: '/chapters',
     topics: '/topics',
