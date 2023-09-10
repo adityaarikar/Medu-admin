@@ -7,6 +7,7 @@ import Topics from './Topics/Topics';
 import Chapters from './Chapters/Chapters';
 import IndividualChapterComponent from './Chapters/IndividualChapterComponent';
 import IndividualTopicComponent from './Topics/IndividualTopicComponent';
+import Privacy from './Privacy/index';
 
 const DashboardComponent = lazy(() => import('./dashboard'));
 
@@ -20,6 +21,7 @@ function PrivateRoutes() {
                 <Route path={SLUGS.topics} component={Topics} />
                 <Route path={SLUGS.getChapterBySubject} component={IndividualChapterComponent} />
                 <Route path={SLUGS.getTopicByChapter} component={IndividualTopicComponent} />
+                <Route path={SLUGS.privacy} component={Privacy} />
                 <Redirect to={SLUGS.home} />
             </Switch>
         </Suspense>

@@ -6,7 +6,7 @@ import { convertSlugToUrl } from 'resources/utilities';
 import LogoComponent from './LogoComponent';
 import Menu from './MenuComponent';
 import MenuItem from './MenuItemComponent';
-import { MdSubject, MdTopic, MdHome, MdLogout, MdMenuBook } from 'react-icons/md';
+import { MdSubject, MdTopic, MdHome, MdLogout, MdMenuBook, MdLock } from 'react-icons/md';
 
 const useStyles = createUseStyles({
     separator: {
@@ -64,6 +64,7 @@ function SidebarComponent() {
                 onClick={() => onClick(SLUGS.topics)}
             ></MenuItem>
             <div className={classes.separator}></div>
+            <MenuItem id='privacy' title='Privacy' icon={MdLock} onClick={SLUGS.privacy} />
             <MenuItem id='logout' title='Logout' icon={MdLogout} onClick={logout} />
         </Menu>
     );

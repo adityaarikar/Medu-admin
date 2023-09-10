@@ -7,6 +7,7 @@ export default {
     topics: '/topics',
     getChapterBySubject: '/subject/chapters/:id',
     getTopicByChapter: '/chapter/topics/:id',
+    privacy: '/privacy',
     // auth
     login: '/login',
     signup: '/signup',
